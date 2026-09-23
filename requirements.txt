@@ -1,0 +1,4 @@
+# Market analysis itself uses only the standard library.
+# Scrapling is installed from its upstream GitHub repository because the
+# 8BO/Okooo collectors use its browser fetchers.
+scrapling[fetchers] @ git+https://github.com/D4Vinci/Scrapling.git@v0.4.11

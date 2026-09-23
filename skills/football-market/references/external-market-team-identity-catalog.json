@@ -1,0 +1,342 @@
+{
+  "schema_version": "football-external-market-team-identity-catalog-v1",
+  "entries": [
+    {
+      "official_team_name": "塞伊奈约基",
+      "source_aliases": {
+        "8bo": [
+          "塞那乔其",
+          "SJK",
+          "SJK Seinajoki"
+        ],
+        "okooo": [
+          "塞伊奈",
+          "SJK"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "韦斯特罗斯",
+      "source_aliases": {
+        "8bo": [
+          "瓦斯特拉斯",
+          "Vasteras",
+          "Västerås",
+          "Vasteras SK FK"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "赫尔辛基",
+      "source_aliases": {
+        "okooo": [
+          "赫尔辛",
+          "HJK",
+          "HJK赫尔辛基"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "济州SK",
+      "source_aliases": {
+        "okooo": [
+          "济州联"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "布鲁马波卡纳",
+      "source_aliases": {
+        "okooo": [
+          "布洛马波卡纳"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "IFK哥德堡",
+      "source_aliases": {
+        "okooo": [
+          "哥德堡"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "瓦萨",
+      "source_aliases": {
+        "okooo": [
+          "VPS瓦萨"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "国际图尔库",
+      "source_aliases": {
+        "okooo": [
+          "英特土尔库"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "AC奥卢",
+      "source_aliases": {
+        "okooo": [
+          "奥卢"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "坦佩雷山猫",
+      "source_aliases": {
+        "okooo": [
+          "坦山猫",
+          "伊尔维斯"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "AIK索尔纳",
+      "source_aliases": {
+        "okooo": [
+          "索尔纳"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "奥斯陆KFUM",
+      "source_aliases": {
+        "okooo": [
+          "KFUM奥斯陆"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "萨尔普斯堡",
+      "source_aliases": {
+        "okooo": [
+          "萨普斯",
+          "萨普斯堡"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "米拉索尔",
+      "source_aliases": {
+        "okooo": [
+          "迈拉索尔"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "圣吉尔联合",
+      "source_aliases": {
+        "8bo": [
+          "圣吉罗斯"
+        ],
+        "okooo": [
+          "圣吉罗斯"
+        ]
+      },
+      "verification": {
+        "basis": "exact_kickoff_exact_away_unique_source_event",
+        "official_match_no": "周二004",
+        "kickoff_beijing": "2026-08-05T02:00:00+08:00",
+        "source_event_ids": {
+          "8bo": "14733381"
+        }
+      }
+    },
+    {
+      "official_team_name": "布拉格斯巴达",
+      "source_aliases": {
+        "okooo": [
+          "布斯巴达"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "里莫",
+      "source_aliases": {
+        "8bo": [
+          "雷莫"
+        ],
+        "okooo": [
+          "瑞模"
+        ]
+      },
+      "verification": {
+        "basis": "migrated_from_verified_source_aliases"
+      }
+    },
+    {
+      "official_team_name": "萨巴赫",
+      "source_aliases": {
+        "okooo": [
+          "沙巴巴库"
+        ]
+      },
+      "verification": {
+        "basis": "exact_kickoff+official_match_number+ordered_team_pair",
+        "official_match_no": "周三002",
+        "kickoff_beijing": "2026-08-06T00:30:00+08:00",
+        "source_page": "okooo_paixu"
+      }
+    },
+    {
+      "official_team_name": "奥胡斯",
+      "source_aliases": {
+        "8bo": [
+          "奥胡斯"
+        ],
+        "okooo": [
+          "奥胡斯"
+        ]
+      },
+      "verification": {
+        "basis": "exact_kickoff+official_match_number+ordered_team_pair",
+        "official_match_no": "周三002",
+        "kickoff_beijing": "2026-08-06T00:30:00+08:00"
+      }
+    },
+    {
+      "official_team_name": "弗鲁米嫩塞",
+      "source_aliases": {
+        "8bo": [
+          "弗鲁米嫩塞"
+        ],
+        "okooo": [
+          "弗鲁米嫩塞"
+        ]
+      },
+      "verification": {
+        "basis": "exact_kickoff+official_match_number+ordered_team_pair",
+        "official_match_no": "周三001",
+        "kickoff_beijing": "2026-08-06T08:30:00+08:00"
+      }
+    },
+    {
+      "official_team_name": "瓦斯科达伽马",
+      "source_aliases": {
+        "8bo": [
+          "瓦斯科达伽马"
+        ],
+        "okooo": [
+          "瓦斯科达伽马"
+        ]
+      },
+      "verification": {
+        "basis": "exact_kickoff+official_match_number+ordered_team_pair",
+        "official_match_no": "周三001",
+        "kickoff_beijing": "2026-08-06T08:30:00+08:00"
+      }
+    },
+    {
+      "official_team_name": "费内巴切",
+      "source_aliases": {
+        "8bo": [
+          "费内巴切"
+        ],
+        "okooo": [
+          "费内巴切"
+        ]
+      },
+      "verification": {
+        "basis": "exact_kickoff+official_match_number+ordered_team_pair",
+        "official_match_no": "周三003",
+        "kickoff_beijing": "2026-08-06T02:00:00+08:00"
+      }
+    },
+    {
+      "official_team_name": "格拉茨风暴",
+      "source_aliases": {
+        "8bo": [
+          "格拉茨风暴"
+        ],
+        "okooo": [
+          "格拉茨风暴"
+        ]
+      },
+      "verification": {
+        "basis": "exact_kickoff+official_match_number+ordered_team_pair",
+        "official_match_no": "周三003",
+        "kickoff_beijing": "2026-08-06T02:00:00+08:00"
+      }
+    },
+    {
+      "official_team_name": "阿拉木图凯拉特",
+      "source_aliases": {
+        "8bo": [
+          "凯拉特"
+        ]
+      },
+      "verification": {
+        "basis": "exact_beijing_kickoff+ordered_team_pair+unique_8bo_event",
+        "official_match_no": "周二002",
+        "kickoff_beijing": "2026-08-11T23:00:00+08:00",
+        "source_event_id": "14733401",
+        "source_artifact": "<historical-collector-runtime>/acquisitions/2026-08-11/collector/snapshots/external_market_identity/20260811T150547845954+0800_dependency_change/external_schedule_identity/8bo_browser/2026-08-11/schedule/schedule.html",
+        "source_sha256": "f535dea05c019fbe2ad7a34d00638cc1e54581a2baa20131eb6372d710875361"
+      }
+    },
+    {
+      "official_team_name": "索菲亚列夫斯基",
+      "source_aliases": {
+        "8bo": [
+          "索非亚列夫斯基"
+        ]
+      },
+      "verification": {
+        "basis": "exact_beijing_kickoff+ordered_team_pair+unique_8bo_event",
+        "official_match_no": "周二002",
+        "kickoff_beijing": "2026-08-11T23:00:00+08:00",
+        "source_event_id": "14733401",
+        "source_artifact": "<historical-collector-runtime>/acquisitions/2026-08-11/collector/snapshots/external_market_identity/20260811T150547845954+0800_dependency_change/external_schedule_identity/8bo_browser/2026-08-11/schedule/schedule.html",
+        "source_sha256": "f535dea05c019fbe2ad7a34d00638cc1e54581a2baa20131eb6372d710875361"
+      }
+    }
+  ]
+}

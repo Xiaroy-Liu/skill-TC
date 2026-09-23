@@ -1,0 +1,121 @@
+{
+  "schema_version": "football-collector-model-input-contract-v1",
+  "contract_version": "2026-08-09",
+  "purpose": "Declare the collector evidence a Football Model route must have before it may treat a field as formal, conditional, or risk-only input. This contract assigns data readiness only; it never assigns a probability weight.",
+  "tiers": {
+    "formal_probability_required": {
+      "missing_effect": "Block formal probability and formal execution for the affected match."
+    },
+    "formal_execution_required": {
+      "missing_effect": "Allow a labeled research probability only; block official pricing, recommendation, stake, and parlay."
+    },
+    "conditional_feature_input": {
+      "missing_effect": "Disable the affected feature path, retain the gap, and apply the registered downgrade. Do not impute the field."
+    },
+    "shadow_or_risk_only": {
+      "missing_effect": "Keep the observation/risk limitation visible with zero direct probability impact."
+    },
+    "model_owned": {
+      "missing_effect": "Not a collector acquisition blocker. The model derives this only from frozen collector evidence."
+    }
+  },
+  "family_requirements": {
+    "official_pool": [
+      {
+        "id": "locked_selling_fixture_identity",
+        "tier": "formal_probability_required",
+        "collector_fields": ["official_match_no", "kickoff_beijing", "competition", "home_team", "away_team", "selling_state"]
+      },
+      {
+        "id": "locked_official_sp",
+        "tier": "formal_execution_required",
+        "collector_fields": ["had_or_hhad_three_way_sp"]
+      }
+    ],
+    "gate0_identity": [
+      {
+        "id": "complete_route_identity",
+        "tier": "formal_probability_required",
+        "collector_fields": ["provider_fixture_identity", "competition_id", "season", "season_phase", "competition_format", "group", "team_level", "gender", "ordered_team_identity"]
+      }
+    ],
+    "foundation": [
+      {
+        "id": "fixture_identity_pre_cutoff_history_and_standings",
+        "tier": "formal_probability_required",
+        "collector_fields": ["provider_fixture_identity", "pre_cutoff_team_history", "pre_cutoff_head_to_head", "standings_context"]
+      },
+      {
+        "id": "direct_xg_layer",
+        "tier": "conditional_feature_input",
+        "collector_fields": ["team_history.xg_layer"]
+      }
+    ],
+    "player": [
+      {
+        "id": "self_built_player_raw_evidence",
+        "tier": "conditional_feature_input",
+        "collector_fields": ["current_squad", "season_totals_or_per90", "recent_player_minutes", "injuries", "availability", "pre_cutoff_lineup_evidence"]
+      },
+      {
+        "id": "self_built_player_attributes",
+        "tier": "model_owned",
+        "collector_fields": ["model_derived_from_self_built_player_raw_evidence"]
+      },
+      {
+        "id": "predicted_xi",
+        "tier": "model_owned",
+        "collector_fields": ["model_derived_from_self_built_player_raw_evidence"]
+      }
+    ],
+    "context": [
+      {
+        "id": "venue_surface_and_travel_context",
+        "tier": "conditional_feature_input",
+        "collector_fields": ["verified_venue", "surface", "altitude", "fixture_schedule_context"]
+      },
+      {
+        "id": "referee_and_discipline_observation",
+        "tier": "shadow_or_risk_only",
+        "collector_fields": ["referee", "referee_style", "discipline"]
+      },
+      {
+        "id": "travel_rest_and_motivation",
+        "tier": "model_owned",
+        "collector_fields": ["model_derived_from_frozen_fixture_schedule"]
+      }
+    ],
+    "weather": [
+      {
+        "id": "kickoff_window_stadium_weather",
+        "tier": "conditional_feature_input",
+        "collector_fields": ["verified_stadium", "stadium_coordinates", "kickoff_window_forecast", "temperature", "precipitation", "wind"]
+      }
+    ],
+    "market": [
+      {
+        "id": "external_market_risk_observation",
+        "tier": "shadow_or_risk_only",
+        "collector_fields": [
+          "eightbo.betfair.terminal_cross_section",
+          "eightbo.betfair.trajectory",
+          "eightbo.betfair.large_trade_stream",
+          "eightbo.european_movement",
+          "eightbo.asian_handicap_movement",
+          "eightbo.totals_movement",
+          "eightbo.correct_score_movement",
+          "eightbo.total_goals_movement",
+          "eightbo.half_full_movement",
+          "okooo.wdl_index",
+          "okooo.difference_analysis",
+          "okooo.handicap_evaluation",
+          "okooo.kelly",
+          "api_football.handicap_result",
+          "api_football_market"
+        ]
+      }
+    ]
+  },
+  "activation_rule": "A conditional collector requirement becomes a formal-probability requirement only through a separately versioned model activation contract. The collector contract and corresponding field validator must be updated in the same change.",
+  "maintenance_rule": "Every new collector field offered to the model must be classified here and in formal-input-criticality.json before collection is scheduled."
+}

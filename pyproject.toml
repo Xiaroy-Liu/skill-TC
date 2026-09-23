@@ -1,0 +1,15 @@
+[project]
+name = "football-market-runtime"
+version = "0.1.0"
+description = "Runtime metadata for the Codex football market collection and analysis skill"
+requires-python = ">=3.11"
+dependencies = [
+  "scrapling[fetchers] @ git+https://github.com/D4Vinci/Scrapling.git@v0.4.11",
+]
+
+[tool.codex]
+research_only = true
+probability_impact = 0
+stake = 0
+parlay = false
+formal_execution = false

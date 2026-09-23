@@ -1,0 +1,388 @@
+{
+  "schema_version": "football-collector-daily-template-v1",
+  "control_root": "/absolute/path/to/football-market-runtime/control",
+  "daily_config_dir": "/absolute/path/to/football-market-runtime/configs",
+  "run_root_pattern": "/absolute/path/to/football-market-runtime/acquisitions/{analysis_date}",
+  "runtime_root": "/absolute/path/to/football-market-runtime",
+  "runtime_namespace": "football-market",
+  "fallback_pre_match_lock_time_beijing": "17:00:00",
+  "final_pre_match_lock": {
+    "mode": "earliest_kickoff_minus_minutes",
+    "minutes": 15
+  },
+  "batch_rollover_time_beijing": "22:00:00",
+  "retention_days": 0,
+  "collector_profile": "market_shadow_only",
+  "consumer_scope": "football-market",
+  "model_acquisition_enabled": false,
+  "collector_config": {
+    "daemon_tick_seconds": 60,
+    "handoff_mode": "versioned_on_demand",
+    "require_pre_freeze_completeness_audit": true,
+    "before_on_demand_max_workers": 4,
+    "on_demand_cut_reuse_seconds": 300,
+    "schedule_identity_audit": {
+      "enabled": false,
+      "scope": "disabled_market_only"
+    },
+    "announcement_route_preheat": {
+      "enabled": false
+    },
+    "four_source_identity_alignment": {
+      "enabled": true,
+      "external_identity_job_id": "external_market_identity"
+    },
+    "nas_replication": null,
+    "official": {
+      "retries": 4,
+      "timeout_seconds": 45,
+      "schedule_source_url": "https://webapi.sporttery.cn/gateway/uniform/football/getMatchListV1.qry?clientCode=3001",
+      "schedule_retries": 4,
+      "schedule_timeout_seconds": 45,
+      "post_lock_interval_seconds": 3600,
+      "poll_intervals": [
+        {
+          "within_minutes": 120,
+          "interval_seconds": 300
+        },
+        {
+          "within_minutes": 360,
+          "interval_seconds": 900
+        },
+        {
+          "within_minutes": 1440,
+          "interval_seconds": 3600
+        },
+        {
+          "within_minutes": 1000000,
+          "interval_seconds": 21600
+        }
+      ]
+    },
+    "jobs": [
+      {
+        "id": "foundation_market_identity",
+        "enabled": true,
+        "family": "foundation",
+        "lifecycle": "once",
+        "once_per_pool_identity": true,
+        "requires_api_identity_preflight": false,
+        "depends_on_job_ids": [
+          "external_market_identity"
+        ],
+        "required_at_lock": true,
+        "family_row_priority": 1,
+        "timeout_seconds": 120,
+        "retry_interval_seconds": 300,
+        "dependency_paths": [
+          "{skill_root}/scripts/build_market_identity_locks.py",
+          "{run_root}/collector/identity/external_identity.json",
+          "{run_root}/official/official_normalized.json"
+        ],
+        "command": [
+          "python3",
+          "{skill_root}/scripts/build_market_identity_locks.py",
+          "--official-json",
+          "{official_json}",
+          "--external-identity",
+          "{run_root}/collector/identity/external_identity.json",
+          "--out",
+          "{snapshot_dir}/foundation.json"
+          ,"--gate0-out",
+          "{run_root}/foundation/normalized/gate0_match_locks.json"
+        ],
+        "outputs": [
+          "{snapshot_dir}/foundation.json",
+          "{run_root}/foundation/normalized/gate0_match_locks.json"
+        ],
+        "completion_file": "{snapshot_dir}/foundation.json",
+        "completion_key": "status",
+        "completion_values": [
+          "partial",
+          "complete"
+        ]
+      },
+      {
+        "id": "external_market_identity",
+        "family": "market",
+        "lifecycle": "once",
+        "requires_api_identity_preflight": false,
+        "once_per_pool_identity": true,
+        "required_at_lock": true,
+        "family_row_priority": 5,
+        "timeout_seconds": 600,
+        "retry_interval_seconds": 3600,
+        "dependency_paths": [
+          "{skill_root}/scripts/collect_next_prediction_day_external_identity.py",
+          "{skill_root}/references/external-market-team-identity-catalog.json"
+        ],
+        "command": [
+          "python3",
+          "{skill_root}/scripts/collect_next_prediction_day_external_identity.py",
+          "--schedule-json",
+          "{official_schedule_json}",
+          "--official-json",
+          "{official_json}",
+          "--out",
+          "{run_root}/collector/identity/external_identity.json",
+          "--out-root",
+          "{run_root}/collector/identity/external_schedule_identity",
+          "--target-mode",
+          "current_sale",
+          "--okooo-panels",
+          "pankou",
+          "--market-only"
+        ],
+        "outputs": [
+          "{run_root}/collector/identity/external_identity.json"
+        ],
+        "completion_file": "{run_root}/collector/identity/external_identity.json",
+        "completion_key": "external_identity_status",
+        "completion_values": [
+          "complete"
+        ]
+      },
+      {
+        "id": "market_8bo_okooo",
+        "enabled": true,
+        "family": "market",
+        "lifecycle": "once",
+        "once_per_pool_identity": true,
+        "stop_after_on_demand_handoff": true,
+        "not_before_time_beijing": "12:00:00",
+        "depends_on_job_ids": [
+          "external_market_identity",
+          "foundation_market_identity"
+        ],
+        "requires_api_identity_preflight": false,
+        "required_at_lock": true,
+        "family_row_priority": 10,
+        "timeout_seconds": 3600,
+        "retry_interval_seconds": 1800,
+        "max_attempts": 2,
+        "dependency_paths": [
+          "{skill_root}/references/external-market-team-identity-catalog.json"
+        ],
+        "command": [
+          "python3",
+          "{skill_root}/scripts/collect_market_from_official.py",
+          "--analysis-date",
+          "{analysis_date}",
+          "--official-json",
+          "{official_json}",
+          "--out",
+          "{snapshot_dir}/market.json",
+          "--okooo-panels",
+          "zhishu",
+          "pankou",
+          "peilv",
+          "banquan"
+        ],
+        "outputs": [
+          "{snapshot_dir}/market.json"
+        ],
+        "completion_file": "{snapshot_dir}/market.json",
+        "completion_key": "market_status",
+        "completion_values": [
+          "completed"
+        ],
+        "okooo_panels": [
+          "zhishu",
+          "pankou",
+          "peilv",
+          "banquan"
+        ]
+      },
+      {
+        "id": "market_8bo_okooo_pre_freeze",
+        "enabled": true,
+        "family": "market",
+        "lifecycle": "before_on_demand_handoff",
+        "required_at_lock": false,
+        "family_row_priority": 20,
+        "timeout_seconds": 3600,
+        "retry_interval_seconds": 1800,
+        "max_attempts": 2,
+        "dependency_paths": [
+          "{skill_root}/references/external-market-team-identity-catalog.json"
+        ],
+        "command": [
+          "python3",
+          "{skill_root}/scripts/collect_market_from_official.py",
+          "--analysis-date",
+          "{analysis_date}",
+          "--official-json",
+          "{official_json}",
+          "--out",
+          "{snapshot_dir}/market.json",
+          "--snapshot-role",
+          "on_demand_pre_freeze",
+          "--okooo-panels",
+          "zhishu",
+          "pankou",
+          "peilv",
+          "banquan"
+        ],
+        "outputs": [
+          "{snapshot_dir}/market.json"
+        ],
+        "completion_file": "{snapshot_dir}/market.json",
+        "completion_key": "market_status",
+        "completion_values": [
+          "completed"
+        ],
+        "okooo_panels": [
+          "zhishu",
+          "pankou",
+          "peilv",
+          "banquan"
+        ]
+      },
+      {
+        "id": "market_okooo_betfair",
+        "enabled": true,
+        "family": "market",
+        "lifecycle": "poll_until_lock",
+        "post_prediction_observation_interval_seconds": 7200,
+        "pre_match_observation_interval_seconds": 1200,
+        "not_before_time_beijing": "12:00:00",
+        "depends_on_job_ids": [
+          "external_market_identity"
+        ],
+        "requires_api_identity_preflight": false,
+        "required_at_lock": true,
+        "post_lock_interval_seconds": 3600,
+        "family_row_priority": 50,
+        "timeout_seconds": 240,
+        "dependency_paths": [
+          "{skill_root}/references/external-market-team-identity-catalog.json",
+          "{skill_root}/scripts/collect_okooo_betfair_from_official.py"
+        ],
+        "poll_intervals": [
+          {
+            "within_minutes": 120,
+            "interval_seconds": 7200
+          },
+          {
+            "within_minutes": 360,
+            "interval_seconds": 7200
+          },
+          {
+            "within_minutes": 1440,
+            "interval_seconds": 7200
+          },
+          {
+            "within_minutes": 1000000,
+            "interval_seconds": 7200
+          }
+        ],
+        "command": [
+          "python3",
+          "{skill_root}/scripts/collect_okooo_betfair_from_official.py",
+          "--analysis-date",
+          "{analysis_date}",
+          "--official-json",
+          "{official_json}",
+          "--out",
+          "{snapshot_dir}/market.json",
+          "--snapshot-role",
+          "{snapshot_role}"
+        ],
+        "outputs": [
+          "{snapshot_dir}/market.json"
+        ],
+        "stop_after_on_demand_handoff": true
+      },
+      {
+        "id": "market_betfair_prematch_once",
+        "enabled": true,
+        "family": "market",
+        "lifecycle": "per_match_once",
+        "requires_on_demand_handoff": true,
+        "required_at_lock": false,
+        "timeout_seconds": 300,
+        "start_before_first_kickoff_minutes": 15,
+        "interval_seconds": 300,
+        "command": [
+          "python3",
+          "{skill_root}/scripts/collect_prematch_betfair_once.py",
+          "--analysis-date",
+          "{analysis_date}",
+          "--handoff-cut-index",
+          "{run_root}/handoff_cuts/index.json",
+          "--market-only",
+          "--state",
+          "{run_root}/collector/prematch/market_betfair_state.json",
+          "--out",
+          "{snapshot_dir}/market.json",
+          "--minutes-before-kickoff",
+          "15",
+          "--max-capture-attempts",
+          "2"
+        ],
+        "outputs": [
+          "{snapshot_dir}/market.json"
+        ],
+        "completion_file": "{snapshot_dir}/market.json",
+        "completion_key": "lifecycle_status",
+        "completion_values": [
+          "complete"
+        ]
+      },
+      {
+        "id": "official_post_match_results",
+        "family": "market",
+        "official_result_source": "sporttery_official",
+        "lifecycle": "post_match_until_complete",
+        "requires_on_demand_handoff": true,
+        "required_for_post_match_handoff": true,
+        "post_match_consumer_scope": "football-market",
+        "model_decisions_present": false,
+        "required_at_lock": false,
+        "timeout_seconds": 300,
+        "start_after_latest_completion_minutes": 20,
+        "interval_seconds": 900,
+        "command": [
+          "python3",
+          "{skill_root}/scripts/collect_official_post_match_results.py",
+          "--handoff",
+          "{prediction_cut_root}/handoff/football_data_handoff.json",
+          "--output",
+          "{snapshot_dir}/football_post_match_data_handoff.json",
+          "--raw",
+          "{snapshot_dir}/official_results_raw.json",
+          "--receipt",
+          "{snapshot_dir}/official_results_source_receipt.json",
+          "--due-before",
+          "{post_match_due_before}"
+        ],
+        "outputs": [
+          "{snapshot_dir}/football_post_match_data_handoff.json",
+          "{snapshot_dir}/official_results_raw.json",
+          "{snapshot_dir}/official_results_source_receipt.json"
+        ],
+        "completion_file": "{snapshot_dir}/football_post_match_data_handoff.json",
+        "completion_key": "status",
+        "completion_values": [
+          "complete"
+        ]
+      }
+    ],
+    "family_fallbacks": {
+      "player": {
+        "status": "blocked",
+        "reason": "football_model_paused_market_only"
+      },
+      "context": {
+        "status": "blocked",
+        "reason": "football_model_paused_market_only"
+      },
+      "weather": {
+        "status": "blocked",
+        "reason": "football_model_paused_market_only"
+      }
+    },
+    "market_only": true
+  },
+  "template_profile": "market_only_8bo_okooo_handicap_okooo_betfair"
+}

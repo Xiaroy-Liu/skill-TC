@@ -1,0 +1,27 @@
+{
+  "name": "football-market",
+  "version": "0.1.0",
+  "description": "One-install Codex skill for source-traceable football collection, frozen market analysis, Scrapling evidence, TJ routing, and shadow settlement.",
+  "author": {
+    "name": "Xiaroy-Liu",
+    "url": "https://github.com/Xiaroy-Liu"
+  },
+  "repository": "https://github.com/Xiaroy-Liu/skill-TC",
+  "homepage": "https://github.com/Xiaroy-Liu/skill-TC",
+  "license": "MIT",
+  "keywords": ["football", "market-analysis", "data-collector", "scrapling", "frozen-handoff", "shadow-research"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Football Market",
+    "shortDescription": "Collect, freeze, route, and audit football market data",
+    "longDescription": "Install one skill for the full football market lifecycle: source collection, Scrapling evidence, immutable handoffs, market baselines, TJ routing, and shadow settlement.",
+    "developerName": "Xiaroy-Liu",
+    "category": "Research",
+    "capabilities": ["Analyze", "Audit", "Write"],
+    "defaultPrompt": [
+      "Collect and freeze today's football market handoff.",
+      "Run market analysis from this immutable football handoff.",
+      "Audit collection coverage, hashes, and shadow-only controls."
+    ]
+  }
+}

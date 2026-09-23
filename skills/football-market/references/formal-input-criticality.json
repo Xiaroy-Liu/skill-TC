@@ -1,0 +1,99 @@
+{
+  "schema_version": "football-formal-input-criticality-v1",
+  "purpose": "Classify collector fields by the consequence of a verified pre-match gap. This catalog never assigns probability weights.",
+  "levels": {
+    "hard_block_formal_probability": {
+      "allowed_missing": false,
+      "effect": "Retain the match, block formal probability and execution, and report the exact source gap."
+    },
+    "hard_block_formal_execution": {
+      "allowed_missing": false,
+      "effect": "A research probability may remain visible, but formal pricing, recommendation, stake, and parlay are blocked."
+    },
+    "conditional_prediction_downgrade": {
+      "allowed_missing": true,
+      "effect": "Do not invent the field or apply its numeric adjustment. Preserve the gap, disable the affected feature path, and cap or block the affected confidence, score, total, handicap, or execution conclusion as declared by the model contract."
+    },
+    "shadow_optional": {
+      "allowed_missing": true,
+      "effect": "Keep the gap visible as an observation/risk limitation. It has zero direct probability impact and cannot satisfy another field."
+    },
+    "model_owned_not_collector_blocker": {
+      "allowed_missing": true,
+      "effect": "This is derived by the model from frozen evidence, not a collector source gap."
+    },
+    "optional_validation_only": {
+      "allowed_missing": true,
+      "effect": "Comparison-only evidence; it is never a formal input requirement."
+    }
+  },
+  "family_defaults": {
+    "official_pool": "hard_block_formal_probability",
+    "gate0_identity": "hard_block_formal_probability",
+    "foundation": "hard_block_formal_probability",
+    "player": "conditional_prediction_downgrade",
+    "market": "shadow_optional",
+    "context": "conditional_prediction_downgrade",
+    "weather": "conditional_prediction_downgrade"
+  },
+  "field_overrides": [
+    {
+      "family": "official_pool",
+      "fields": ["official_sp", "had", "hhad"],
+      "criticality": "hard_block_formal_execution"
+    },
+    {
+      "family": "foundation",
+      "fields": ["xg_layer", "direct_xg", "expected_goals"],
+      "criticality": "conditional_prediction_downgrade"
+    },
+    {
+      "family": "context",
+      "fields": ["referee", "referee_style", "altitude", "discipline"],
+      "criticality": "shadow_optional"
+    },
+    {
+      "family": "market",
+      "fields": [
+        "betfair_and_fund_flow",
+        "betting_difference",
+        "correct_score_index",
+        "goal_rate_difference",
+        "half_full_index",
+        "handicap_evaluation",
+        "handicap_index",
+        "index_ranking",
+        "kelly_dispersion",
+        "kelly_index",
+        "kelly_variance",
+        "odd_even_index",
+        "total_goals_index",
+        "upper_lower_index",
+        "eightbo.betfair.terminal_cross_section",
+        "eightbo.betfair.trajectory",
+        "eightbo.betfair.large_trade_stream",
+        "eightbo.european_movement",
+        "eightbo.asian_handicap_movement",
+        "eightbo.totals_movement",
+        "eightbo.correct_score_movement",
+        "eightbo.total_goals_movement",
+        "eightbo.half_full_movement",
+        "okooo.wdl_index",
+        "okooo.difference_analysis",
+        "okooo.handicap_evaluation",
+        "okooo.kelly",
+        "api_football.handicap_result",
+        "api_football_market.fixed_2_5",
+        "api_football_market.btts"
+      ],
+      "criticality": "shadow_optional"
+    }
+  ],
+  "formal_baseline_requirements": [
+    "Locked official match number, ordered teams, kickoff, selling state, and provider fixture identity.",
+    "Complete Gate 0 competition, season, phase, format, and team identity lock.",
+    "Pre-cutoff foundation/history evidence and the exact registered route/profile required by the formal probability contract.",
+    "For formal execution, the locked official SP/pricing evidence in addition to the formal-probability requirements."
+  ],
+  "maintenance_rule": "A new collector field must be assigned a level here before it can be offered to a formal model route. An unclassified collector source gap is treated as hard_block_formal_probability."
+}
