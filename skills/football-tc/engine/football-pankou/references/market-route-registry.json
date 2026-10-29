@@ -1,0 +1,293 @@
+{
+  "schema_version": "football-pankou-market-route-registry-v1",
+  "rule_version": "football-pankou-route-v1.0.3",
+  "effective_from_beijing": "2026-09-07T00:00:00+08:00",
+  "status": "registered_shadow",
+  "scope": {
+    "settlement": "90_minutes_including_stoppage_time",
+    "market_heads": [
+      "WDL",
+      "HHAD",
+      "O2.5",
+      "BTTS",
+      "CORRECT_SCORE",
+      "TOTAL_GOALS",
+      "HALF_FULL",
+      "WDL_ODDS_MOVEMENT",
+      "ASIAN_HANDICAP_MOVEMENT",
+      "TOTALS_MOVEMENT",
+      "CORRECT_SCORE_MOVEMENT",
+      "TOTAL_GOALS_MOVEMENT",
+      "HALF_FULL_MOVEMENT",
+      "BETFAIR_TERMINAL",
+      "BETFAIR_TRAJECTORY",
+      "BETFAIR_LARGE_TRADE",
+      "OKOOO_WDL_INDEX",
+      "OKOOO_HANDICAP_EVALUATION",
+      "OKOOO_KELLY",
+      "OKOOO_DIFFERENCE_ANALYSIS"
+    ],
+    "default_head": "WDL",
+    "probability_impact": 0.0,
+    "stake": 0.0,
+    "parlay": false,
+    "formal_execution": false
+  },
+  "input_contract": {
+    "handoff_schema_version": "football-data-handoff-v1",
+    "required_handoff_ready": true,
+    "required_family": "market",
+    "latest_pointer_allowed": false,
+    "same_run_root_required": true,
+    "official_match_coverage_required": true
+  },
+  "sources": {
+    "preferred": [
+      "8bo"
+    ],
+    "secondary": [
+      "betfair",
+      "okooo",
+      "api_football"
+    ],
+    "source_direction_policy": "source-labelled-market-evidence-only",
+    "source_substitution": "forbidden",
+    "company_aggregation": "median_no_vig",
+    "single_quote_status": "shadow_single_quote"
+  },
+  "wdl": {
+    "required_quote": "explicit_three_way_european_odds",
+    "outcomes": [
+      "H",
+      "D",
+      "A"
+    ],
+    "top_direction_tie": "H_then_D_then_A",
+    "market_direction_replaces_model": true,
+    "formal_activation": "blocked_pending_rolling_oos_and_price_audit"
+  },
+  "hhad": {
+    "required_exact_signed_line": true,
+    "required_direct_three_way_quote": true,
+    "ordinary_wdl_translation": "forbidden",
+    "asian_line_translation": "forbidden",
+    "default_status": "blocked_unless_direct_market_quote_present"
+  },
+  "o25": {
+    "family": "api_football.fixed_2_5",
+    "line": 2.5,
+    "outcomes": [
+      "OVER",
+      "UNDER"
+    ],
+    "input_basis": "frozen_precomputed_devigged_probability",
+    "aggregation": "collector_selected_value_authoritative",
+    "independent_head": true,
+    "role": "external_analysis_only",
+    "official_playable": false,
+    "public_display": false,
+    "priority_selection_eligible": false,
+    "formal_activation": "blocked_pending_rolling_oos_and_price_audit"
+  },
+  "btts": {
+    "family": "api_football.btts",
+    "outcomes": [
+      "YES",
+      "NO"
+    ],
+    "input_basis": "frozen_precomputed_devigged_probability",
+    "aggregation": "collector_selected_value_authoritative",
+    "independent_head": true,
+    "role": "external_analysis_only",
+    "official_playable": false,
+    "public_display": false,
+    "priority_selection_eligible": false,
+    "formal_activation": "blocked_pending_rolling_oos_and_price_audit"
+  },
+  "automatic_analysis": {
+    "mode": "all_registered_market_heads",
+    "unknown_family_policy": "retain_inventory_and_mark_observation_only",
+    "missing_family_policy": "retain_head_with_missing_reason",
+    "movement_policy": "summarize_frozen_initial_to_latest_and_company_deltas",
+    "heads": [
+      {
+        "id": "wdl",
+        "family_patterns": [
+          "eightbo.european_movement",
+          "betfair.panel_match_wdl"
+        ],
+        "output": "wdl_main_selection"
+      },
+      {
+        "id": "hhad",
+        "family_patterns": [
+          "api_football.handicap_result"
+        ],
+        "output": "hhad_main_selection"
+      },
+      {
+        "id": "o25",
+        "family_patterns": [
+          "api_football.fixed_2_5"
+        ],
+        "output": "o25_market"
+      },
+      {
+        "id": "btts",
+        "family_patterns": [
+          "api_football.btts"
+        ],
+        "output": "btts_market"
+      },
+      {
+        "id": "correct_score",
+        "family_patterns": [
+          "correct_score_movement"
+        ],
+        "output": "score_top3"
+      },
+      {
+        "id": "total_goals",
+        "family_patterns": [
+          "total_goals_movement"
+        ],
+        "output": "total_goals_top2"
+      },
+      {
+        "id": "half_full",
+        "family_patterns": [
+          "half_full_movement"
+        ],
+        "output": "half_full_top2"
+      },
+      {
+        "id": "wdl_odds_movement",
+        "family_patterns": [
+          "european_movement"
+        ],
+        "output": "movement_analysis.wdl"
+      },
+      {
+        "id": "asian_handicap_movement",
+        "family_patterns": [
+          "asian_handicap_movement"
+        ],
+        "output": "movement_analysis.asian_handicap"
+      },
+      {
+        "id": "totals_movement",
+        "family_patterns": [
+          "totals_movement"
+        ],
+        "output": "movement_analysis.totals"
+      },
+      {
+        "id": "correct_score_movement",
+        "family_patterns": [
+          "correct_score_movement"
+        ],
+        "output": "movement_analysis.correct_score"
+      },
+      {
+        "id": "total_goals_movement",
+        "family_patterns": [
+          "total_goals_movement"
+        ],
+        "output": "movement_analysis.total_goals"
+      },
+      {
+        "id": "half_full_movement",
+        "family_patterns": [
+          "half_full_movement"
+        ],
+        "output": "movement_analysis.half_full"
+      },
+      {
+        "id": "betfair_terminal",
+        "family_patterns": [
+          "betfair.terminal_cross_section"
+        ],
+        "output": "market_family_inventory"
+      },
+      {
+        "id": "betfair_trajectory",
+        "family_patterns": [
+          "betfair.trajectory"
+        ],
+        "output": "market_family_inventory"
+      },
+      {
+        "id": "betfair_large_trade",
+        "family_patterns": [
+          "betfair.large_trade_stream"
+        ],
+        "output": "market_family_inventory"
+      },
+      {
+        "id": "okooo_wdl_index",
+        "family_patterns": [
+          "okooo.wdl_index"
+        ],
+        "output": "market_family_inventory"
+      },
+      {
+        "id": "okooo_handicap_evaluation",
+        "family_patterns": [
+          "okooo.handicap_evaluation"
+        ],
+        "output": "market_family_inventory"
+      },
+      {
+        "id": "okooo_kelly",
+        "family_patterns": [
+          "okooo.kelly"
+        ],
+        "output": "market_family_inventory"
+      },
+      {
+        "id": "okooo_difference_analysis",
+        "family_patterns": [
+          "okooo.difference_analysis"
+        ],
+        "output": "market_family_inventory"
+      }
+    ]
+  },
+  "report_contract": {
+    "wdl_main": 1,
+    "hhad_main": 1,
+    "correct_score": 3,
+    "total_goals": 2,
+    "half_full": 2,
+    "public_table_heads": [
+      "WDL",
+      "HHAD",
+      "CORRECT_SCORE",
+      "TOTAL_GOALS",
+      "HALF_FULL"
+    ],
+    "external_analysis_only_heads": [
+      "O2.5",
+      "BTTS"
+    ],
+    "priority_selection_excluded_heads": [
+      "O2.5",
+      "BTTS"
+    ],
+    "missing_output_policy": "keep_empty_array_and_reason",
+    "source_policy": "direct_frozen_market_family_only"
+  },
+  "thresholds": {
+    "research_market_no_vig_min": 0.55,
+    "research_high_market_no_vig_min": 0.6,
+    "thresholds_are_shadow_only": true,
+    "must_be_pre_registered_before_oos": true
+  },
+  "failure_actions": {
+    "handoff_invalid": "blocked_all_rows",
+    "market_manifest_invalid": "blocked_all_rows",
+    "row_missing_or_unscorable": "blocked_row_keep_coverage",
+    "quote_invalid": "blocked_row_keep_reason",
+    "no_fabrication": true
+  }
+}

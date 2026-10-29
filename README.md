@@ -1,63 +1,92 @@
-# Football Market
+# Football TC
 
-这是一个单一的 `football-market` skill，包含完整的“市场采集/冻结 -> 盘口分析 -> 赛后影子结算”流程。
+一个可独立安装的 Codex 足球市场分析 skill。使用官方 Sporttery、8BO/Okooo 和
+Okooo Betfair 的本轮采集证据，生成完整场次报告。全部结论为影子研究，不执行投注。
 
-- 采集器：`football-market-data-collector`，只采集官方 Sporttery 市场池/SP、8BO/Okooo 市场证据、Okooo Betfair 证据和官方赛果。
-- 分析模式：盘口基线、TJ 评分路由、逐场唯一 WDL/HHAD 影子单选和赛后诊断。
+## 安装与使用
 
-所有输出仍是 `research_only` / `shadow_only`，不会执行投注、分配资金或改写冻结输入。
+仓库地址：**https://github.com/Xiaroy-Liu/skill-TC**
 
-## 安装
+在支持本仓库插件格式的 Codex 客户端中，将仓库作为插件安装。也可克隆仓库或通过
+**Code → Download ZIP** 下载，将完整的 `skills/football-tc/` 文件夹复制到
+`~/.codex/skills/football-tc/`。如设置了 `CODEX_HOME`，使用其下的 `skills/football-tc/`。
+更新前请保留需要的本地运行产物；安装后重新加载 skills 或重启客户端。
 
-在 Codex 中把 GitHub 仓库作为插件安装：
+然后输入：
 
-`https://github.com/Xiaroy-Liu/skill-TC`
+```text
+使用 $football-tc 分析今天的比赛
+```
 
-安装一次后使用 `$football-market`。采集和分析是同一个 skill 的两个工作模式。
+代理检查依赖并完成本轮官方赛程发现、8BO/Okooo 身份匹配、市场采集和分析。
+无需安装其他足球 skill，也无需提供个人历史数据、球队映射、采集回执或数据库。
+采集连接器、盘口分析组件和 TJ 审计组件均包含在本仓库。
 
 ## 运行环境
 
-- Python 3.11 或更高版本。
-- 盘口分析只需要 Python 标准库。
-- 采集器的 Scrapling 抓取需要 `requirements.txt` 中的 Scrapling fetchers 和 Playwright 依赖，安装脚本会从 [Scrapling GitHub](https://github.com/D4Vinci/Scrapling) 安装。
-- 不需要 PostgreSQL 客户端，也不读取模型数据库。
-- 运行状态、浏览器配置和凭据由安装者在本机运行时目录中提供；这些目录不会随插件上传，也不在 Git 历史中。
+- macOS/Linux 的 bash 环境，Python **3.10+**，可创建虚拟环境。
+- 首次安装需要访问 Python 依赖源；采集需要访问 Sporttery、8BO 和 Okooo。
+- Scrapling 固定为 `scrapling[fetchers]==0.4.11`，安装在 skill 自己的 `.venv/`。
+- 已在同一台 Mac 的独立副本中新建环境并实际采集、分析；其他机器及 Windows 未验证。
 
-本仓库提供 `.python-version`、`pyproject.toml`、`requirements.txt`、运行时安装脚本和 GitHub Actions，用于固定版本、依赖和自动测试。
-
-初始化采集运行环境：
+手动初始化依赖，在仓库根目录运行：
 
 ```bash
-bash skills/football-market/scripts/bootstrap_runtime.sh
+bash skills/football-tc/scripts/bootstrap_runtime.sh
 ```
 
-然后按 `skills/football-market/references/collector-market-only.example.json` 复制一份自己的运行时模板，并将其中的运行根目录改为本机路径。需要凭据的来源通过采集脚本默认的私有运行时位置或环境变量提供；浏览器运行时可通过 `FOOTBALL_EIGHTBO_PYTHON` 指定。不要把密钥写进仓库。
-
-## 输入边界
-
-分析模式只接受明确的、不可变的 `handoff/football_data_handoff.json`。采集模式负责生成它，但分析不得读取 `latest` 或可变缓存。市场 handoff 契约已随仓库保存在 `skills/football-market/references/football-three-skill-handoff-contract.md`（文件名为历史兼容名）。
-
-采集器模板校验示例：
+若默认 Python 版本过低，可指定：
 
 ```bash
-PYTHONPATH=skills/football-market/scripts python3 skills/football-market/scripts/run_daily_collection.py \
-  --template skills/football-market/references/collector-market-only.example.json --validate-template
+PYTHON_BIN=python3.12 bash skills/football-tc/scripts/bootstrap_runtime.sh
 ```
 
-市场流水线示例：
+接着可直接运行：
 
 ```bash
-python3 skills/football-market/scripts/run_frozen_market_pipeline.py \
-  --handoff /path/to/cut/handoff/football_data_handoff.json \
-  --output /path/to/new-output/football-market
+skills/football-tc/.venv/bin/python skills/football-tc/scripts/analyze_today.py
 ```
 
-## 本地校验
+入口从当前工作目录创建 `work/` 采集批次和 `outputs/` 报告目录。
+可用 `--analysis-date YYYY-MM-DD` 指定业务日，`--run-root` 和 `--output` 指定新目录。
+每次创建新批次和空身份状态，不复用历史映射或旧回执；无需先配置调度模板。
+北京时间业务窗口为 `[当天 12:00, 次日 12:00)`，跨午夜场次纳入同一报告。
 
-```bash
-PYTHONPATH=skills/football-market/scripts python3 -m unittest discover -s skills/football-market/tests -p 'test_*.py'
-python3 -m py_compile skills/football-market/scripts/*.py
+## 报告与缺失说明
+
+- 保留窗口内全部官方场次，并分别展示在售状态、采集状态和缺失原因。
+- WDL 盘口基线、官方有符号 HHAD 基准和外部亚盘对照。
+- **比分 Top3、精确总进球 Top2、半全场 Top2**，逐玩法报告可用场数及缺失场次。
+- 每场唯一 WDL/HHAD 影子单选；TJ 评分与门禁作为独立审计附件。
+- 本轮采集批次、采集时间、handoff 及来源证据 SHA-256。
+
+8BO HTML 壳页面支持已登记的后台赛程 API，按完整北京日期时间、主客顺序和唯一候选
+匹配。验证页停止该来源；冲突、多候选和没有报价均保留明确状态。身份匹配成功不代表
+每个市场报价齐全，也不能保证源站始终可访问。
+
+比分使用原始隐含概率；半全场须有完整九项报价才去水。区间总球不能冒充精确总进球。
+已采得的小玩法面板直接接入分析；真正缺失的字段不能用历史数据补齐。
+修正分析时保留原报告，在新目录生成绑定同轮 handoff 的修正版并披露单选变化。
+
+## 仓库结构
+
+```text
+.codex-plugin/plugin.json    插件入口
+skills/football-tc/
+  SKILL.md                  代理执行规则
+  agents/                   skill 元数据
+  scripts/                  采集、交接与一键入口
+  references/               来源、身份和报告契约
+  engine/                   随包盘口与 TJ 分析组件
+  requirements.txt          独立运行依赖
 ```
+
+详细规则见 [SKILL.md](skills/football-tc/SKILL.md) 和
+[小玩法衔接契约](skills/football-tc/references/small-market-analysis-contract.md)。
+连续调度与赛后结算为高级用法，按 skill 内相应契约配置；日常分析使用上述一键入口。
+
+仓库仅分享代码、静态规则和说明。虚拟环境、个人配置、身份状态、原始页面、历史盘口、
+采集回执和生成报告均不随仓库分享。
 
 ## 许可证
 

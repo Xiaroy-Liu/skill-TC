@@ -1,0 +1,712 @@
+{
+  "schema_version": "football-tj-route-registry-v1",
+  "registry_id": "football-tj-route-registry",
+  "rule_version": "football-tj-filter-v1.12.0",
+  "effective_from_beijing": "2026-09-18T00:00:00+08:00",
+  "status": "registered_shadow",
+  "scope": {
+    "settlement": "90_minutes_including_stoppage_time",
+    "market_heads": [
+      "WDL",
+      "HHAD"
+    ],
+    "direction_source": "frozen_pure_market_model_output",
+    "upstream_model_schema": "football-pankou-market-selection-v1",
+    "route_states": [
+      "WDL",
+      "HHAD",
+      "HHAD_RESEARCH_POOL",
+      "观察"
+    ],
+    "probability_impact": 0.0,
+    "stake": 0.0,
+    "parlay": false,
+    "formal_execution": false,
+    "direct_same_line_and_market_hhad_oos_required_for": "asian_to_official_hhad_mapping_and_oos_promotion_only"
+  },
+  "official_baseline_route_policy": {
+    "enabled": true,
+    "daily_route": "choose_one_frozen_WDL_or_official_HHAD_baseline_when_strict_route_is_unavailable",
+    "route_authorization": "official_baseline_research_route",
+    "asian_to_official_hhad_mapping_and_market_oos_required_for": "asian_to_official_hhad_promoted_only",
+    "probability_impact": 0.0,
+    "stake": 0.0,
+    "formal_execution": false
+  },
+  "research_shadow_policy": {
+    "version": "tj-research-branch-guard-v1",
+    "conflict_count_ge_support_count": "lower_confidence_and_block_unconditional_hhad_switch",
+    "net_score_below": 5,
+    "partial_evidence_action": "lower_confidence_and_keep_coverage_visible",
+    "wdl_hhad_branch_conflict": "retain_both_branches_and_prefer_wdl_for_binary_shadow_when_available",
+    "material_official_asian_line_gap": 0.5,
+    "probability_impact": 0.0,
+    "stake": 0.0,
+    "parlay": false,
+    "formal_execution": false
+  },
+  "evidence_counting": {
+    "unit": "one_registered_group_per_market_head_per_match",
+    "allowed_states": [
+      "support",
+      "conflict",
+      "neutral",
+      "missing",
+      "unscorable"
+    ],
+    "count_states": {
+      "support": "support_count_plus_one",
+      "conflict": "conflict_count_plus_one",
+      "neutral": "not_counted",
+      "missing": "not_counted_and_evidence_incomplete",
+      "unscorable": "not_counted_and_evidence_incomplete_for_that_head"
+    },
+    "missing_is_zero": false,
+    "mixed_support_and_conflict": "conflict",
+    "duplicate_raw_fields": "collapse_within_registered_group",
+    "market_direction_boundary": "market_evidence_may_support_or_veto_the_market_head_but_never_translates_one_market_head_into_another"
+  },
+  "evidence_groups": [
+    {
+      "id": "8bo_wdl_late",
+      "display_name": "8BO欧赔末段/多公司走势",
+      "enabled": true,
+      "count_once": true,
+      "sources": [
+        "8bo.european_movement",
+        "8bo.correct_score_movement",
+        "8bo.half_full_movement"
+      ],
+      "wdl_semantics": {
+        "required_inputs": [
+          "event_history.initial",
+          "event_history.latest",
+          "at_least_two_observations"
+        ],
+        "support": "latest_three_way_no_vig_probability_leader_equals_market_wdl_first_and_latest_leader_margin_at_least_1pp",
+        "conflict": "latest_three_way_no_vig_probability_leader_opposes_market_wdl_first_and_margin_at_least_1pp",
+        "neutral": "available_but_leader_margin_below_1pp_or_no_directional_change",
+        "missing": "family_or_required_timestamp_is_missing_or_partial"
+      },
+      "hhad_semantics": {
+        "required_inputs": [
+          "explicit_score_to_signed_hhad_mapping"
+        ],
+        "support": "only_if_complete_score_paths_are_explicitly_mapped_to_the_exact_signed_hhad_line_and_top_mapped_bucket_equals_direct_market_hhad_first",
+        "conflict": "only_if_complete_score_paths_are_explicitly_mapped_to_the_exact_signed_hhad_line_and_top_mapped_bucket_opposes_direct_market_hhad_first",
+        "neutral": "mapped_score_paths_available_but_no_directional_margin",
+        "unscorable": "ordinary_wdl_or_half_full_direction_without_an_exact_signed_hhad_score_mapping"
+      }
+    },
+    {
+      "id": "8bo_large_trade",
+      "display_name": "8BO必发/大额交易",
+      "enabled": true,
+      "count_once": true,
+      "sources": [
+        "8bo.betfair.large_trade_stream",
+        "8bo.betfair.embedded_big_deal"
+      ],
+      "wdl_semantics": {
+        "required_inputs": [
+          "validated_outcome_mapping",
+          "large_trade_amounts_or_explicit_no_activity"
+        ],
+        "support": "aggregate_large_trade_top_outcome_equals_market_wdl_first_and_top_share_at_least_45pct",
+        "conflict": "aggregate_large_trade_top_outcome_opposes_market_wdl_first_and_top_share_at_least_45pct",
+        "neutral": "explicit_no_large_trade_activity_or_top_share_below_45pct",
+        "missing": "parent_source_partial_or_outcome_mapping_or_amounts_missing"
+      },
+      "hhad_semantics": {
+        "support": "unscorable_without_an_exact_signed_hhad_trade_mapping",
+        "conflict": "unscorable_without_an_exact_signed_hhad_trade_mapping",
+        "neutral": "explicit_no_large_trade_activity_does_not_create_hhad_support",
+        "unscorable": "wdl_betfair_outcome_is_not_hhad_outcome"
+      }
+    },
+    {
+      "id": "asian_handicap",
+      "display_name": "8BO/Okooo亚盘与让球变化",
+      "enabled": true,
+      "count_once": true,
+      "sources": [
+        "8bo.asian_handicap_movement",
+        "okooo.handicap_evaluation"
+      ],
+      "wdl_semantics": {
+        "required_inputs": [
+          "opening_and_latest_line_or_price",
+          "at_least_two_observations"
+        ],
+        "support": "line_or_price_trajectory_favors_market_wdl_first_by_registered_directional_rule",
+        "conflict": "line_or_price_trajectory_opposes_market_wdl_first_by_registered_directional_rule",
+        "neutral": "line_and_price_do_not_cross_registered_change_threshold",
+        "missing": "handicap_family_missing_or_partial"
+      },
+      "hhad_semantics": {
+        "support": "only_official_integer_line_and_asian_mapping_may_be_scored_and_must_use_a_registered_asian_mapping_mapping",
+        "conflict": "only_official_integer_line_and_asian_mapping_may_be_scored_and_must_use_a_registered_asian_mapping_mapping",
+        "neutral": "exact_line_present_but_no_asian_mapping_directional_mapping",
+        "unscorable": "asian_market_direction_is_not_a_substitute_for_the_sporttery_hhad_head"
+      }
+    },
+    {
+      "id": "kelly_odds",
+      "display_name": "Okooo Kelly/赔率风险",
+      "enabled": true,
+      "count_once": true,
+      "sources": [
+        "okooo.kelly"
+      ],
+      "wdl_semantics": {
+        "required_inputs": [
+          "at_least_three_companies",
+          "initial_and_latest_odds_or_kelly_values"
+        ],
+        "support": "median_market_outcome_odds_shorten_by_at_least_5pct_or_registered_kelly_support_condition",
+        "conflict": "median_market_outcome_odds_lengthen_by_at_least_5pct_or_registered_kelly_risk_condition",
+        "neutral": "change_is_inside_registered_5pct_band",
+        "missing": "kelly_family_missing_or_required_company_values_missing"
+      },
+      "hhad_semantics": {
+        "support": "unscorable_without_a_direct_signed_hhad_kelly_panel",
+        "conflict": "unscorable_without_a_direct_signed_hhad_kelly_panel",
+        "neutral": "wdl_kelly_only_does_not_vote_on_hhad",
+        "unscorable": "wdl_kelly_outcomes_are_not_hhad_outcomes"
+      }
+    },
+    {
+      "id": "odds_index",
+      "display_name": "Okooo胜平负/差异/指数及小市场指数",
+      "enabled": true,
+      "count_once": true,
+      "sources": [
+        "okooo.wdl_index",
+        "okooo.difference_analysis",
+        "8bo.totals_movement",
+        "8bo.half_full_movement"
+      ],
+      "wdl_semantics": {
+        "required_inputs": [
+          "matched_index_or_difference_table"
+        ],
+        "support": "latest_index_change_or_difference_tip_includes_market_wdl_first_under_registered_parser",
+        "conflict": "latest_index_change_or_difference_tip_excludes_market_wdl_first_and_registered_opposition_is_present",
+        "neutral": "table_available_but_no_registered_directional_condition",
+        "missing": "index_or_difference_family_missing_or_unmatched"
+      },
+      "hhad_semantics": {
+        "support": "unscorable_without_a_direct_signed_hhad_index",
+        "conflict": "unscorable_without_a_direct_signed_hhad_index",
+        "neutral": "wdl_index_or_total_goal_index_does_not_vote_on_hhad",
+        "unscorable": "ordinary_wdl_and_small_market_indexes_are_not_hhad_directions"
+      }
+    },
+    {
+      "id": "okooo_fund",
+      "display_name": "Okooo必发资金/冷热/市场指数",
+      "enabled": true,
+      "count_once": true,
+      "sources": [
+        "okooo_betfair.panel_match",
+        "okooo_betfair.betfair_table"
+      ],
+      "wdl_semantics": {
+        "required_inputs": [
+          "three_outcome_rows",
+          "amount_or_share_or_heat"
+        ],
+        "support": "top_amount_or_share_outcome_equals_market_wdl_first_and_share_at_least_45pct",
+        "conflict": "top_amount_or_share_outcome_opposes_market_wdl_first_and_share_at_least_45pct_or_registered_home_hot_draw_suppressed_risk",
+        "neutral": "available_but_no_45pct_directional_leader",
+        "missing": "okooo_betfair_family_missing_or_panel_rows_incomplete"
+      },
+      "hhad_semantics": {
+        "support": "unscorable_without_a_direct_signed_hhad_fund_panel",
+        "conflict": "unscorable_without_a_direct_signed_hhad_fund_panel",
+        "neutral": "wdl_fund_flow_does_not_vote_on_hhad",
+        "unscorable": "okooo_fund_rows_are_wdl_outcomes_only"
+      }
+    },
+    {
+      "id": "heat_dispersion",
+      "display_name": "热度/离散/集中度风险",
+      "enabled": true,
+      "count_once": true,
+      "support_allowed": false,
+      "sources": [
+        "8bo.betfair.large_trade_stream",
+        "okooo_betfair.panel_match",
+        "okooo.kelly"
+      ],
+      "wdl_semantics": {
+        "required_inputs": [
+          "at_least_one_valid_heat_or_dispersion_measure"
+        ],
+        "support": "never_supports",
+        "conflict": "large_trade_top_share_at_least_80pct_or_heat_range_at_least_20pp_or_kelly_variance_range_at_least_0.20_or_home_hot_draw_suppressed",
+        "neutral": "risk_inputs_available_and_no_registered_concentration_condition",
+        "missing": "all_heat_dispersion_inputs_missing"
+      },
+      "hhad_semantics": {
+        "support": "never_supports",
+        "conflict": "same_registered_concentration_condition_is_a_protection_veto",
+        "neutral": "risk_inputs_available_and_no_concentration_condition",
+        "missing": "all_heat_dispersion_inputs_missing"
+      }
+    }
+  ],
+  "gates": {
+    "wdl": {
+      "minimum_complete_company_quotes": 2,
+      "minimum_market_leader_probability": 0.6,
+      "minimum_market_leader_margin": 0.197898,
+      "full_path_stability_required": true,
+      "required_primary_tier": "A",
+      "required_evidence_complete": true,
+      "required_groups": [
+        "8bo_wdl_late",
+        "8bo_large_trade",
+        "asian_handicap",
+        "kelly_odds",
+        "odds_index",
+        "okooo_fund",
+        "heat_dispersion"
+      ],
+      "support_count_min": 3,
+      "directional_conflict_policy": "proportional_balance_only; individual_asian_heat_kelly_fund_or_index_conflict_is_risk_not_automatic_block",
+      "late_8bo_opposition": "block_and_observe",
+      "draw_protection_veto": true,
+      "concentration_veto": false,
+      "concentration_conflict_action": "included_in_directional_conflict_balance",
+      "missing_group_action": "observe_and_keep_missing_label"
+    },
+    "draw_risk": {
+      "status": "registered_market_risk_gate",
+      "active_for_probability": false,
+      "blocks_blind_wdl": true,
+      "does_not_authorize_hhad": true,
+      "conditions": {
+        "market_draw_probability_min": 0.25,
+        "first_minus_draw_max": 0.2,
+        "market_draw_protection_min_groups": 1,
+        "combination": "market_draw_floor_and_small_margin_or_registered_market_draw_protection"
+      },
+      "market_protection_sources": [
+        "okooo_fund",
+        "heat_dispersion",
+        "8bo_wdl_late"
+      ],
+      "unvalidated_thresholds": true
+    },
+    "hhad": {
+      "status": "blocked_pending_asian_to_official_hhad_mapping_oos",
+      "minimum_complete_company_quotes": 2,
+      "minimum_market_leader_probability": 0.5,
+      "minimum_market_leader_margin": 0.03,
+      "required_exact_signed_home_handicap": true,
+      "required_evidence_complete": true,
+      "required_groups": [],
+      "support_count_min": 0,
+      "conflict_count_max": null,
+      "market_direction_translation": "forbidden",
+      "missing_or_unscorable_group_action": "observe",
+      "mapping_requirements": {
+        "source_scope": "frozen_8bo_okooo_asian_handicap_only",
+        "allowed_market_families": [
+          "eightbo.asian_handicap_movement",
+          "okooo.handicap_evaluation"
+        ],
+        "allowed_source_keys": [
+          "8bo_okooo",
+          "okooo_market_research"
+        ],
+        "official_head": "official_sporttery_integer_hhad",
+        "direct_external_hhad_quote_required": false,
+        "required_inputs": [
+          "signed_asian_line",
+          "home_away_prices",
+          "opening_latest_or_movement_history",
+          "official_integer_hhad_line"
+        ],
+        "mapping_output": "external_asian_hhad_mapping_evidence_only",
+        "api_football_handicap_result": "excluded_from_authorization"
+      }
+    },
+    "market_hhad_oos": {
+      "status": "blocked_pending_asian_to_official_hhad_mapping_oos",
+      "source_binding": {
+        "rule_version_required": true,
+        "oos_contract_sha256_required": true,
+        "unbound_source_action": "research_statistics_only_never_authorizes_route",
+        "mapping_contract_required": true,
+        "direct_external_hhad_quote_required": false
+      },
+      "accepted_source_names": [
+        "8BO Asian Handicap",
+        "Okooo Handicap Evaluation"
+      ],
+      "candidate_source_names_not_authorizing": [
+        "API-Football",
+        "Official Sporttery SP"
+      ],
+      "artifact_schema": "football-tj-asian-to-official-hhad-oos-audit-v1",
+      "registered_artifact": null,
+      "paired_rows_min": 100,
+      "chronological_folds_min": 4,
+      "test_rows_min_per_fold": 20,
+      "brier_advantage_min": 0.01,
+      "cross_head_comparison": {
+        "status": "descriptive_only_not_authorizing",
+        "reason": "WDL_and_HHAD_have_different_realized_outcome_spaces; never compare their hit rates or calibration scores for authorization"
+      },
+      "confidence": {
+        "method": "paired_brier_advantage_vs_expanding_train_prevalence_baseline_normal_approximation",
+        "baseline": "HHAD class prevalence with Laplace-one smoothing, fitted only on dates before each contiguous test fold",
+        "one_sided_confidence": 0.95,
+        "lower_bound_must_exceed": 0.0
+      },
+      "class_safety": {
+        "hhad_draw_recall_must_be_nonzero_overall_and_each_fold_with_draws": true,
+        "no_zero_recall_promotion": true
+      },
+      "calibration_safety": {
+        "primary_metric": "multiclass_brier",
+        "must_beat_expanding_train_prevalence_baseline": true
+      },
+      "failure_action": "HHAD_not_authorized; preserve_independent_WDL_HHAD_shadow_analysis",
+      "current_evidence": {
+        "decision": "blocked",
+        "basis": "no_registered_asian_to_official_integer_hhad_mapping_oos_artifact"
+      }
+    }
+  },
+  "recommendation_tiering": {
+    "status": "registered_shadow",
+    "purpose": "make the previously studied 8BO probability, margin, path, and cross-market screens visible in every current route ledger without authorizing execution",
+    "market_head": "WDL_only",
+    "probability_bands": {
+      "below_observation": {
+        "upper_exclusive": 0.55,
+        "label": "低于55%：不进入观察甜区"
+      },
+      "observation": {
+        "lower_inclusive": 0.55,
+        "upper_exclusive": 0.6,
+        "label": "55%-60%：观察甜区，不进入高命中候选"
+      },
+      "high_support": {
+        "lower_inclusive": 0.6,
+        "label": "60%及以上：高概率影子层"
+      }
+    },
+    "fixed_margin": {
+      "minimum": 0.197898,
+      "origin": "user_fixed_threshold",
+      "meaning": "WDL第一与第二去水概率之差；达到阈值进入WDL候选，低于阈值只保留为无方向的让球研究池状态，不自动完成玩法转换或选择让球方向；普通WDL只有在平局风险门触发后才进入让球转换流程"
+    },
+    "probability_separation_research_score": {
+      "status": "registered_shadow_descriptive",
+      "source": "same_frozen_8BO_WDL_no_vig_probability",
+      "definition": "将同一冻结WDL去水概率按p1>=p2>=p3排序后计算p1-p3；仅记录总分离度，不能与p1-p2或同源8BO字段重复计票",
+      "wide_separation": {
+        "lower_inclusive": 0.4,
+        "score": 1,
+        "label": "p1-p3不低于0.40：宽分离研究加1分"
+      },
+      "weak_middle_separation": {
+        "lower_inclusive": 0.1,
+        "upper_exclusive": 0.3,
+        "score": -1,
+        "label": "p1-p3处于0.10至0.30：弱分离研究减1分"
+      },
+      "otherwise_neutral": {
+        "score": 0,
+        "label": "其余p1-p3区间：样本不足或未显示稳定额外增益，研究中性0分"
+      },
+      "missing_action": "record_missing_with_null_score_and_never_impute",
+      "counts_as_independent_evidence_group": false,
+      "counts_toward_support_or_conflict": false,
+      "changes_route": false,
+      "changes_recommendation_tier": false,
+      "authorization": "descriptive_research_only_until_prospectively_registered_independent_rolling_OOS"
+    },
+    "trend_gate": {
+      "minimum_observations": 2,
+      "require_same_leader_from_open_to_latest": true,
+      "require_zero_full_path_leader_reversals": true,
+      "last_two_leaders_change_action": "hard_block",
+      "high_frequency_reversal_action": "downgrade_to_C",
+      "weakened_leader_probability_is": "recorded_as_risk_context_not_a_separate_outcome_optimized_gate"
+    },
+    "handicap_line_gate": {
+      "official_line_domain": "integer_signed_sporttery_line",
+      "minor_gap": 0.25,
+      "material_gap": 0.5,
+      "hard_block_gap": 0.75,
+      "comparison": "absolute_difference_between_integer_official_signed_line_and_latest_asian_signed_line",
+      "minor_gap_action": "record_risk_and_cap_consistency_at_B",
+      "material_gap_action": "downgrade_to_C_without_automatic_direction",
+      "hard_block_gap_action": "hard_block",
+      "missing_official_or_latest_line": "hard_block"
+    },
+    "score_structure_gate": {
+      "top_scores_required": 3,
+      "minimum_candidate_support_count": 2,
+      "three_way_spread_action": "downgrade_to_C",
+      "missing_action": "downgrade_to_C",
+      "hhad_bucket_audit": "record_only_until_direct_hhad_market_head_and_oos_pass"
+    },
+    "pseudo_signal_gates": {
+      "marginal_fixed_margin_window": 0.01,
+      "asian_retreat_candidate_price_drop": {
+        "line_delta_min": 0.25,
+        "candidate_price_delta_max": -0.08
+      },
+      "draw_near_second_probability_gap_max": 0.03,
+      "single_snapshot_action": "downgrade_to_C",
+      "official_line_conflict_action": "hard_block_only_at_hard_block_gap"
+    },
+    "cross_market": {
+      "confirmation_groups": [
+        "asian_handicap",
+        "8bo_large_trade"
+      ],
+      "risk_veto_groups": [
+        "8bo_wdl_late",
+        "8bo_large_trade",
+        "asian_handicap",
+        "kelly_odds",
+        "odds_index",
+        "okooo_fund",
+        "heat_dispersion"
+      ],
+      "hard_veto_groups": [
+        "8bo_wdl_late"
+      ],
+      "directional_conflict_balance": {
+        "origin": "user_requested_conflict_proportion_conservative_default",
+        "scored_groups": [
+          "8bo_large_trade",
+          "asian_handicap",
+          "kelly_odds",
+          "odds_index",
+          "okooo_fund",
+          "heat_dispersion"
+        ],
+        "counted_states": [
+          "support",
+          "conflict"
+        ],
+        "minimum_conflict_groups_to_block": 2,
+        "minimum_conflict_share_of_directional_groups_to_block": 0.5,
+        "block_when": "conflict_count_at_least_minimum_and_conflict_share_at_least_minimum; otherwise_record_risk_only",
+        "single_conflict_action": "record_risk_only",
+        "missing_and_neutral": "excluded_from_denominator_and_never_count_as_support"
+      },
+      "missing_is_not_support": true,
+      "conflict_action": "proportional_balance_block_or_risk_record",
+      "support_action": "A_requires_both_confirmation_groups_support_and_passing_conflict_balance; otherwise_B_when_high_probability_core_passes"
+    },
+    "tiers": {
+      "A": "60%及以上、0.197898固定差值、四项盘口一致、完整路径稳定、无硬否决且冲突比例门通过，且亚盘与8BO大额两个独立组都支持；影子优先候选",
+      "B": "60%及以上、0.197898固定差值、四项盘口一致性为B或交叉组未形成双支持；影子候选并披露风险",
+      "C": "55%-60%观察层，或任一概率/差值/路径/硬否决/冲突比例门未通过；仅观察",
+      "X": "盘口公司报价、概率或路径不可评分；阻断"
+    },
+    "shadow_shortlist_tiers": [
+      "A",
+      "B"
+    ],
+    "price_context": {
+      "status": "descriptive_only_no_bundled_history",
+      "market_source": "frozen_8BO_WDL_final_pre_kickoff_quote",
+      "selected_8bo_raw_odds_bands": [
+        "1.00-1.49",
+        "1.50-1.99",
+        "2.00-2.49",
+        "2.50-2.99",
+        "3.00-3.99",
+        "4.00-5.99",
+        "6.00+"
+      ],
+      "overround_observation_band": [
+        0.04,
+        0.07
+      ],
+      "descriptive_price_sweet_zone": [],
+      "secondary_price_observation_zone": [],
+      "price_exclusion_observation_zone": [],
+      "price_gate_active": false,
+      "authorization": "descriptive_only_until_a_same_source_8BO_price_band_chronological_OOS_is_registered"
+    }
+  },
+  "market_shadow_scoring": {
+    "rule_version": "football-market-shadow-score-rules-v3",
+    "status": "registered_shadow",
+    "market_head": "WDL_only",
+    "purpose": "score every frozen WDL row with explicit coverage while keeping incomplete evidence and post-kickoff rows ineligible for a WDL shadow main selection; never changes market direction, probability, HHAD, stake, or formal execution",
+    "direction_quality": {
+      "top1_probability": {
+        "high_support_min": 0.6,
+        "observation_min": 0.55
+      },
+      "top1_margin": {
+        "high_support_min": 0.197898,
+        "observation_min": 0.15
+      },
+      "full_path_stable_points": 1,
+      "support_cap": 2,
+      "partial_member_policy": "one_or_more_usable_members_resolve_the_cluster_once; missing_members_are_retained_as_source_coverage; no_usable_member_is_missing",
+      "support_clusters": {
+        "eightbo_large_trade": [
+          "8bo_large_trade"
+        ],
+        "asian_handicap": [
+          "asian_handicap"
+        ],
+        "okooo_price_structure": [
+          "kelly_odds",
+          "odds_index"
+        ],
+        "okooo_fund": [
+          "okooo_fund"
+        ]
+      },
+      "conflict_cap": 2,
+      "conflict_clusters": {
+        "eightbo_large_trade": [
+          "8bo_large_trade"
+        ],
+        "asian_handicap": [
+          "asian_handicap"
+        ],
+        "okooo_price_or_fund": [
+          "kelly_odds",
+          "odds_index",
+          "okooo_fund"
+        ],
+        "heat_dispersion": [
+          "heat_dispersion"
+        ]
+      },
+      "score_range": [
+        0,
+        7
+      ],
+      "bands": {
+        "high_quality_observation": [
+          6,
+          7
+        ],
+        "normal_observation": [
+          4,
+          5
+        ],
+        "cautious_observation": [
+          0,
+          3
+        ]
+      }
+    },
+    "draw_protection": {
+      "score_range": [
+        0,
+        4
+      ],
+      "focus_min": 3,
+      "components": {
+        "registered_draw_gate": 1,
+        "home_wdl_weakened_and_asian_conflict": 1,
+        "eightbo_large_trade_leads_draw_or_away": 2,
+        "okooo_fund_leads_draw_or_away": 1,
+        "home_hot_draw_suppressed": 1
+      }
+    },
+    "cold_risk": {
+      "score_range": [
+        0,
+        3
+      ],
+      "home_probability_min": 0.7,
+      "focus_min": 2,
+      "components": {
+        "extreme_home_consensus": 1,
+        "okooo_home_share_ge_75_and_draw_le_5": 1,
+        "eightbo_large_trade_missing_or_unscorable": 1,
+        "heat_or_kelly_dispersion_conflict": 1
+      }
+    },
+    "low_total": {
+      "score_range": [
+        0,
+        3
+      ],
+      "source": "eightbo.totals_movement",
+      "latest_line_max": 2.5,
+      "quarter_line": 2.75,
+      "quarter_line_requires_under_water_lt_over_water": true,
+      "focus_min": 2,
+      "action": "risk_label_only_never_changes_WDL_selection"
+    },
+    "hhad_draw_boundary": {
+      "required_input": "exact_same_signed_line_direct_three_way_hhad_quote",
+      "action": "coverage_monitor_only_never_derives_let_draw"
+    },
+    "main_selection": {
+      "minimum_net_score": 5,
+      "formula": "direction_quality_score - draw_protection_score",
+      "draw_protection_block_min": 3,
+      "cold_risk_action": "label_only_pending_prospective_oos",
+      "missing_action": "compute_observed_score_and_fail_closed_for_WDL_shadow_main_selection",
+      "timing_gate": "generated_before_each_match_kickoff_required",
+      "applies_to": "WDL_shadow_main_selection_only",
+      "does_not_authorize_HHAD": true
+    },
+    "calibration_lifecycle": {
+      "status": "prospective_append_only_shadow_calibration",
+      "settlement": "90_minutes_including_stoppage_time",
+      "outcome_writeback": "append_each_pre_scored_frozen_row_with_90_minute_result_and_hit_fields; never_rewrite_frozen_score",
+      "threshold_or_weight_change": "manual_new_rule_version_only_after_registered_rolling_OOS_review",
+      "minimum_prospective_scored_matches": 100,
+      "minimum_chronological_folds": 4,
+      "required_for_version_change": [
+        "wdl_brier_non_worse",
+        "wdl_log_loss_non_worse",
+        "draw_recall_non_zero",
+        "hhad_let_draw_recall_non_zero"
+      ],
+      "probability_impact": 0.0,
+      "stake": 0.0,
+      "parlay": false,
+      "formal_execution": false
+    }
+  },
+  "route_order": [
+    "validate_frozen_identity_and_cutoff",
+    "build_evidence_group_ledger",
+    "if_required_evidence_missing_observe",
+    "evaluate_play_routing_by_fixed_margin",
+    "record_p1_p3_probability_separation_research_score_without_gate_effect",
+    "evaluate_score_structure_consistency",
+    "evaluate_four_market_consistency_gate",
+    "evaluate_wdl_gate",
+    "evaluate_registered_8BO_recommendation_tier",
+    "evaluate_registered_draw_risk_gate",
+    "score_every_row_with_registered_market_shadow_score",
+    "require_pre_kickoff_score_and_net_score_ge_5_and_no_draw_block_for_WDL_shadow_main_selection; cold_risk_is_label_only",
+    "evaluate_exact_line_hhad_gate",
+    "evaluate_market_hhad_oos_gate",
+    "if_margin_below_0_197898_route_to_HHAD_RESEARCH_POOL_without_direction",
+    "if_draw_risk_route_to_HHAD_RESEARCH_POOL_unless_all_HHAD_and_OOS_gates_pass",
+    "shadow_shortlist_A_only_without_draw_risk_to_WDL",
+    "direct_HHAD_only_with_all_HHAD_and_OOS_gates",
+    "otherwise_observe"
+  ],
+  "artifacts": {
+    "ledger_schema": "football-tj-evidence-group-ledger-v1",
+    "manifest_schema": "football-tj-route-manifest-v1",
+    "ledger_hash_binding": "manifest_required_after_ledger_generation",
+    "frozen_inputs_must_not_be_modified": true
+  }
+}

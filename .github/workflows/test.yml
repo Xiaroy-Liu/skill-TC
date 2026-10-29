@@ -16,10 +16,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Run market tests
-        run: PYTHONPATH=skills/football-market/scripts python -m unittest discover -s skills/football-market/tests -p 'test_*.py'
+        run: PYTHONPATH=skills/football-tc/scripts python -m unittest discover -s skills/football-tc/tests -p 'test_*.py'
       - name: Compile collector and market scripts
-        run: python -m py_compile skills/football-market/scripts/*.py
+        run: python -m py_compile skills/football-tc/scripts/*.py
       - name: Validate market-only template
         env:
-          PYTHONPATH: skills/football-market/scripts
-        run: python skills/football-market/scripts/run_daily_collection.py --template skills/football-market/references/collector-market-only.example.json --validate-template
+          PYTHONPATH: skills/football-tc/scripts
+        run: python skills/football-tc/scripts/run_daily_collection.py --template skills/football-tc/references/collector-market-only.example.json --validate-template

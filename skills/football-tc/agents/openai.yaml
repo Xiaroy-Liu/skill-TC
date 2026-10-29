@@ -1,0 +1,4 @@
+interface:
+  display_name: "Football TC"
+  short_description: "现场采集足球盘口并生成逐场影子分析"
+  default_prompt: "使用 $football-tc 分析今天的比赛，从空身份状态现场采集官方、8BO、Okooo 与必发证据，保留全部场次并生成影子分析报告。"

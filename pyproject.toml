@@ -1,10 +1,10 @@
 [project]
-name = "football-market-runtime"
-version = "0.1.0"
-description = "Runtime metadata for the Codex football market collection and analysis skill"
-requires-python = ">=3.11"
+name = "football-tc-runtime"
+version = "0.2.0"
+description = "Runtime metadata for the Codex football TC collection and analysis skill"
+requires-python = ">=3.10"
 dependencies = [
-  "scrapling[fetchers] @ git+https://github.com/D4Vinci/Scrapling.git@v0.4.11",
+  "scrapling[fetchers]==0.4.11",
 ]
 
 [tool.codex]

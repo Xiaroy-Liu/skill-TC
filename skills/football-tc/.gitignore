@@ -1,0 +1,30 @@
+# Installed dependencies and generated state
+.venv/
+venv/
+.runtime/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Acquisition batches, reports, logs and private configuration
+work/
+outputs/
+data/
+runtime/
+private/
+state/
+logs/
+*.log
+.env
+.env.*
+!.env.example
+provider-config.json
+team-identities.json
+
+# Local editor and OS files
+.DS_Store
+._*
+.idea/
+.vscode/
